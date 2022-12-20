@@ -35,27 +35,74 @@ export class news extends Component {
     console.log("hello i am constructer");
     this.state = {
         articles: this.articles,
-        loading:false
+        loading:false,
+        page: 1
     }
 
   }
+  
+  async componentDidMount(){
+    console.log("cdm");
+    let url = "https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=68d90305a25d47d08dfe12b68e3f0f7e";
+    let data = await fetch(url);
+    let parsedData = await data.json()
+    console.log(parsedData);
+    this.setState({ articles: parsedData.articles })
+}
+handlePrevClick =async ()=>{
+console.log("Previous");
+let url = `https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=68d90305a25d47d08dfe12b68e3f0f7e&page${this.state.page - 1}}&pageSize=20`;
+    let data = await fetch(url);
+    let parsedData = await data.json()
+    console.log(parsedData);
+    this.setState({
+        page: this.state.page - 1,
+        articles: parsedData.articles
+    })
+}
+
+handleNextClick =async ()=>{
+console.log("Next");
+if (this.state.page + 1 > Math.ceil(this.state.totalResults / 20)) {
+}
+else {
+    let url = `https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=68d90305a25d47d08dfe12b68e3f0f7e&page${this.state.page + 1}}&pageSize=20`;
+    let data = await fetch(url);
+    let parsedData = await data.json()
+    console.log(parsedData);
+    this.setState({
+        page: this.state.page + 1,
+        articles: parsedData.articles
+    })
+}
+let url = `https://newsapi.org/v2/top-headlines?country=in&category=business&apiKey=68d90305a25d47d08dfe12b68e3f0f7e&page${this.state.page + 1}}&pageSize=20`;
+    let data = await fetch(url);
+    let parsedData = await data.json()
+    console.log(parsedData);
+    this.setState({ articles: parsedData.articles })
+this.setState({
+  page: this.state.page+1,
+
+})
+}
   render() {
     return (
       <div className='container my-3'>
         <h2>NewsMonkey-Top Headlines</h2>
+        
         <div className="row">
-        <div className="col-md-4">
-        <NewsItem title="myTitle" description="mydesc" imageUrl="https://a4.espncdn.com/combiner/i?img=%2Fi%2Fcricket%2Fcricinfo%2F1219926_1296x729.jpg"/>
+        {this.state.articles.map((element)=>{
+          
+       return <div className="col-md-4" key={element.url}>
+        <NewsItem  title={element.title.slice(0,45)} description={element.description.slice(0,88)} imageUrl={element.urlToImage} url={element.url}/>
         </div>
-        <div className="col-md-4">
-        <NewsItem title="myTitle" description="mydesc"/>
-        </div>
-        <div className="col-md-4">
-        <NewsItem title="myTitle" description="mydesc"/>
-        </div>
+        })}
         
         </div>
-        
+        <div className="container d-flex justify-content-between">
+        <button disabled={this.state.page<=1} type="button" class="btn btn-dark" onClick={this.handlePrevClick}>&larr; Previous</button>
+        <button type="button" className="btn btn-dark"onClick={this.handleNextClick}>Next &rarr;</button>
+        </div>
         
       </div>
     )
